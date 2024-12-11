@@ -28,11 +28,11 @@ pipeline {
                         string(credentialsId: 'tenantId', variable: 'AZURE_TENANT_ID')         // tenantId renamed
                     ]) {
                         // Set environment variables for Terraform authentication
-                        sh '''
-                            export ARM_CLIENT_ID=$AZURE_CLIENT_ID
-                            export ARM_CLIENT_SECRET=$AZURE_CLIENT_SECRET
-                            export ARM_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID
-                            export ARM_TENANT_ID=$AZURE_TENANT_ID
+                        bat '''
+                            set ARM_CLIENT_ID=%AZURE_CLIENT_ID%
+                            set ARM_CLIENT_SECRET=%AZURE_CLIENT_SECRET%
+                            set ARM_SUBSCRIPTION_ID=%AZURE_SUBSCRIPTION_ID%
+                            set ARM_TENANT_ID=%AZURE_TENANT_ID%
                             terraform init
                         '''
                     }
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     // Run Terraform plan to see what changes will be applied
-                    sh 'terraform plan'
+                    bat 'terraform plan'
                 }
             }
         }
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 script {
                     // Apply the changes using Terraform with auto-approval
-                    sh 'terraform apply -auto-approve'
+                    bat 'terraform apply -auto-approve'
                 }
             }
         }
