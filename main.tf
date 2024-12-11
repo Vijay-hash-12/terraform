@@ -16,7 +16,7 @@ data "azurerm_virtual_network" "example_vnet" {
 
 # Fetch the existing Subnet
 data "azurerm_subnet" "example_subnet" {
-  name                 = "vijay-vnet2"  # Replace with your existing subnet name
+  name                 = "your-subnet-name"  # Replace with the actual subnet name
   virtual_network_name = data.azurerm_virtual_network.example_vnet.name
   resource_group_name  = data.azurerm_resource_group.example.name
 }
@@ -32,8 +32,14 @@ resource "azurerm_network_interface" "new_vm_nic" {
   name                      = "new-vm-nic"
   location                  = data.azurerm_resource_group.example.location
   resource_group_name       = data.azurerm_resource_group.example.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = data.azurerm_subnet.example_subnet.id
+    private_ip_address_allocation = "Dynamic"
+  }
+
   network_security_group_id = data.azurerm_network_security_group.example_nsg.id
-  subnet_id                 = data.azurerm_subnet.example_subnet.id
 }
 
 # Create a new Linux Virtual Machine (VM) - Node VM
@@ -42,10 +48,12 @@ resource "azurerm_linux_virtual_machine" "new_vm" {
   resource_group_name = data.azurerm_resource_group.example.name
   location            = data.azurerm_resource_group.example.location
   size                = "Standard_B1s"  # You can adjust the size as per your needs
+
   network_interface_ids = [azurerm_network_interface.new_vm_nic.id]
 
   admin_username = "vijaylinux"
-  admin_password = "Viju_1234567"  # Replace with a secure password
+  admin_password = var.vm_admin_password  # Use a variable for the password (recommended for sensitive data)
+
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
@@ -54,6 +62,14 @@ resource "azurerm_linux_virtual_machine" "new_vm" {
   }
 }
 
+# Output the private IP address of the new VM
 output "new_vm_private_ip" {
   value = azurerm_network_interface.new_vm_nic.private_ip_address
+}
+
+# Define a variable for the VM admin password (this should be passed securely)
+variable "vm_admin_password" {
+  description = "The admin password for the Linux VM"
+  type        = string
+  sensitive   = true
 }
