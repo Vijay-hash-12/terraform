@@ -1,14 +1,7 @@
 pipeline {
     agent any
 
-    environment {
-        //These are for Terraform, but they can also be retrieved from Jenkins credentials dynamically
-        // You don't need to define them here if you're using withCredentials
-       // TF_VAR_subscription_id = 'cff5596b-0353-4056-9fcc-02fdcdd59e80'
-      //  TF_VAR_client_id = '8363189a-22ae-4730-b095-a60d0f41d98e'
-        
-        //TF_VAR_tenant_id = '4ca5d8fc-0c4d-444f-9d14-d74203e46373'
-    }
+    
 
     stages {
         stage('Checkout') {
