@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     // Run Terraform plan to see what changes will be applied
-                    bat 'terraform plan'
+                    bat 'terraform plan -var="Password"'
                 }
             }
         }
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 script {
                     // Apply the changes using Terraform with auto-approval
-                    bat 'terraform apply -auto-approve'
+                    bat 'terraform apply -var="Password=$VM_ADMIN_PASSWORD" -auto-approve'
                 }
             }
         }
