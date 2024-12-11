@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // Use Jenkins credentials to authenticate with Azure
-                    withCredentials([
+                    withCredentials([ 
                         string(credentialsId: 'clientId', variable: 'AZURE_CLIENT_ID'),       // clientId renamed
                         string(credentialsId: 'clientSecret', variable: 'AZURE_CLIENT_SECRET'),  // clientSecret renamed
                         string(credentialsId: 'subscriptionId', variable: 'AZURE_SUBSCRIPTION_ID'),  // subscriptionId renamed
@@ -40,19 +40,24 @@ pipeline {
             }
         }
 
-       stage('Terraform Plan') {
+        stage('Terraform Plan') {
             steps {
                 script {
                     // Use the correct -var syntax, and securely pass the password as a variable
-                    bat "terraform plan -var=\"vm_admin_password=${VM_ADMIN_PASSWORD}\""
+                    withCredentials([string(credentialsId: 'VM_ADMIN_PASSWORD', variable: 'VM_ADMIN_PASSWORD')]) {
+                        bat "terraform plan -var=\"vm_admin_password=${VM_ADMIN_PASSWORD}\""
+                    }
                 }
             }
         }
+
         stage('Terraform Apply') {
             steps {
                 script {
                     // Apply the Terraform changes with the correct password
-                    bat "terraform apply -var=\"vm_admin_password=${VM_ADMIN_PASSWORD}\" -auto-approve"
+                    withCredentials([string(credentialsId: 'VM_ADMIN_PASSWORD', variable: 'VM_ADMIN_PASSWORD')]) {
+                        bat "terraform apply -var=\"vm_admin_password=${VM_ADMIN_PASSWORD}\" -auto-approve"
+                    }
                 }
             }
         }
