@@ -40,20 +40,19 @@ pipeline {
             }
         }
 
-        stage('Terraform Plan') {
+       stage('Terraform Plan') {
             steps {
                 script {
-                    // Run Terraform plan to see what changes will be applied
-                    bat 'terraform plan -var="Password"'
+                    // Use the correct -var syntax, and securely pass the password as a variable
+                    bat "terraform plan -var=\"vm_admin_password=${VM_ADMIN_PASSWORD}\""
                 }
             }
         }
-
         stage('Terraform Apply') {
             steps {
                 script {
-                    // Apply the changes using Terraform with auto-approval
-                    bat 'terraform apply -var="Password=$VM_ADMIN_PASSWORD" -auto-approve'
+                    // Apply the Terraform changes with the correct password
+                    bat "terraform apply -var=\"vm_admin_password=${VM_ADMIN_PASSWORD}\" -auto-approve"
                 }
             }
         }
