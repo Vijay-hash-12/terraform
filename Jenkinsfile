@@ -3,11 +3,10 @@ pipeline {
 
     environment {
         // Optional: Define any other environment variables you may need
-        // These will be used by Terraform
-        TF_VAR_subscription_id = 'cff5596b-0353-4056-9fcc-02fdcdd59e80'  // This will be replaced by Jenkins credentials
-        TF_VAR_client_id = '8363189a-22ae-4730-b095-a60d0f41d98e'        // This will be replaced by Jenkins credentials
-        TF_VAR_client_secret = 'secret'    // This will be replaced by Jenkins credentials
-        TF_VAR_tenant_id = '4ca5d8fc-0c4d-444f-9d14-d74203e46373'        // This will be replaced by Jenkins credentials
+        TF_VAR_subscription_id = ''  // This will be replaced by Jenkins credentials
+        TF_VAR_client_id = ''        // This will be replaced by Jenkins credentials
+        TF_VAR_client_secret = ''    // This will be replaced by Jenkins credentials
+        TF_VAR_tenant_id = ''        // This will be replaced by Jenkins credentials
     }
 
     stages {
@@ -23,10 +22,10 @@ pipeline {
                 script {
                     // Use Jenkins credentials to authenticate with Azure
                     withCredentials([
-                        string(credentialsId: 'azure-client-id', variable: 'AZURE_CLIENT_ID'),
-                        string(credentialsId: 'secret', variable: 'AZURE_CLIENT_SECRET'),  // Corrected to 'secret'
-                        string(credentialsId: 'azure-subscription-id', variable: 'AZURE_SUBSCRIPTION_ID'),
-                        string(credentialsId: 'azure-tenant-id', variable: 'AZURE_TENANT_ID')
+                        string(credentialsId: 'clientId', variable: 'AZURE_CLIENT_ID'),       // clientId renamed
+                        string(credentialsId: 'clientSecret', variable: 'AZURE_CLIENT_SECRET'),  // clientSecret renamed
+                        string(credentialsId: 'subscriptionId', variable: 'AZURE_SUBSCRIPTION_ID'),  // subscriptionId renamed
+                        string(credentialsId: 'tenantId', variable: 'AZURE_TENANT_ID')         // tenantId renamed
                     ]) {
                         // Set environment variables for Terraform authentication
                         sh '''
