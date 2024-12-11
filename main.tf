@@ -52,7 +52,7 @@ resource "azurerm_linux_virtual_machine" "new_vm" {
   network_interface_ids = [azurerm_network_interface.new_vm_nic.id]
 
   admin_username = "vijaylinux"
-  admin_password = var.vm_admin_password  # Use a variable for the password (recommended for sensitive data)
+  admin_password = Password  # Use a variable for the password (recommended for sensitive data)
 
   source_image_reference {
     publisher = "Canonical"
