@@ -2,21 +2,22 @@ pipeline {
     agent any
 
     environment {
-        // Use Jenkins credentials securely
-        VM_ADMIN_PASSWORD = credentials('VM_ADMIN_PASSWORD')
+        // Binding the 'vm_admin_password' to the 'xyz' secret text credential
+        VM_ADMIN_PASSWORD = credentials('Password')
     }
 
     stages {
         stage('Checkout') {
             steps {
+                // Checkout your Terraform code from the Git repository
                 git 'https://github.com/Vijay-hash-12/terraform.git'
             }
         }
         
         stage('Terraform Init') {
             steps {
+                // Initialize Terraform
                 script {
-                    // Initialize Terraform
                     bat 'terraform init'
                 }
             }
@@ -24,9 +25,8 @@ pipeline {
         
         stage('Terraform Plan') {
             steps {
+                // Run 'terraform plan' and securely pass the password as a variable
                 script {
-                    // Correct: Use single quotes to prevent interpolation
-                    // This avoids leaking sensitive variables
                     bat "terraform plan -var='vm_admin_password=${VM_ADMIN_PASSWORD}'"
                 }
             }
@@ -34,8 +34,8 @@ pipeline {
         
         stage('Terraform Apply') {
             steps {
+                // Run 'terraform apply' and securely pass the password as a variable
                 script {
-                    // Correct: Use single quotes to prevent interpolation
                     bat "terraform apply -auto-approve -var='vm_admin_password=${VM_ADMIN_PASSWORD}'"
                 }
             }
