@@ -39,8 +39,10 @@ resource "azurerm_network_interface" "new_vm_nic" {
     private_ip_address_allocation = "Dynamic"
   }
 
-  # Attach the Network Security Group (NSG) to the network interface
-  network_security_group_id = data.azurerm_network_security_group.example_nsg.id
+  # Use the network_interface_security_group block to attach the NSG
+  network_interface_security_group {
+    id = data.azurerm_network_security_group.example_nsg.id
+  }
 }
 
 # Create a new Linux Virtual Machine (VM) - Node VM
