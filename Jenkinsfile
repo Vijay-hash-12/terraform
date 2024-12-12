@@ -25,18 +25,18 @@ pipeline {
         
         stage('Terraform Plan') {
             steps {
-                // Set VM_ADMIN_PASSWORD as an environment variable and pass it securely to terraform
-                withEnv(["vm_admin_password=${VM_ADMIN_PASSWORD}"]) {
-                    bat 'terraform plan -var="Password=%vm_admin_password%"'
+                // Use 'withCredentials' to securely pass the password without interpolation
+                withCredentials([string(credentialsId: 'Password', variable: 'VM_ADMIN_PASSWORD')]) {
+                    bat 'terraform plan -var="Password=%VM_ADMIN_PASSWORD%"'
                 }
             }
         }
         
         stage('Terraform Apply') {
             steps {
-                // Set VM_ADMIN_PASSWORD as an environment variable and pass it securely to terraform
-                withEnv(["vm_admin_password=${VM_ADMIN_PASSWORD}"]) {
-                    bat 'terraform apply -auto-approve -var="Password=%vm_admin_password%"'
+                // Use 'withCredentials' to securely pass the password without interpolation
+                withCredentials([string(credentialsId: 'Password', variable: 'VM_ADMIN_PASSWORD')]) {
+                    bat 'terraform apply -auto-approve -var="Password=%VM_ADMIN_PASSWORD%"'
                 }
             }
         }
@@ -54,4 +54,3 @@ pipeline {
         }
     }
 }
-
