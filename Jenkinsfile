@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // Binding the 'vm_admin_password' to the 'xyz' secret text credential
-        VM_ADMIN_PASSWORD = credentials('Password')
+        // Securely retrieve the secret from Jenkins credentials and bind it to an environment variable
+        VM_ADMIN_PASSWORD = credentials('xyz')
     }
 
     stages {
@@ -25,18 +25,18 @@ pipeline {
         
         stage('Terraform Plan') {
             steps {
-                // Run 'terraform plan' and securely pass the password as a variable
-                script {
-                    bat "terraform plan -var='vm_admin_password=${VM_ADMIN_PASSWORD}'"
+                // Set VM_ADMIN_PASSWORD as an environment variable without Groovy interpolation
+                withEnv(["vm_admin_password=${VM_ADMIN_PASSWORD}"]) {
+                    bat 'terraform plan -var="vm_admin_password=%vm_admin_password%"'
                 }
             }
         }
         
         stage('Terraform Apply') {
             steps {
-                // Run 'terraform apply' and securely pass the password as a variable
-                script {
-                    bat "terraform apply -auto-approve -var='vm_admin_password=${VM_ADMIN_PASSWORD}'"
+                // Set VM_ADMIN_PASSWORD as an environment variable without Groovy interpolation
+                withEnv(["vm_admin_password=${VM_ADMIN_PASSWORD}"]) {
+                    bat 'terraform apply -auto-approve -var="vm_admin_password=%vm_admin_password%"'
                 }
             }
         }
