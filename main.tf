@@ -1,3 +1,10 @@
+# Step 1: Declare the Password variable
+variable "Password" {
+  description = "The password for the admin user of the Linux VM"
+  type        = string
+  sensitive   = true
+}
+
 # Configure the Azure provider
 provider "azurerm" {
   features {}
@@ -32,8 +39,8 @@ resource "azurerm_network_interface" "new_vm_nic" {
   name                      = "new-vm-nic"
   location                  = data.azurerm_resource_group.example.location
   resource_group_name       = data.azurerm_resource_group.example.name
-  //network_security_group_id = data.azurerm_network_security_group.example_nsg.id
-security_rule {
+
+  security_rule {
     name                       = "allow-ssh"
     priority                   = 1000
     direction                  = "Inbound"
@@ -45,15 +52,11 @@ security_rule {
     destination_address_prefix = "*"
   }
 
-
   ip_configuration {
-    name= "internal"
-   private_ip_address_allocation = "Dynamic"
-    subnet_id                = data.azurerm_subnet.example_subnet.id
-
+    name                          = "internal"
+    private_ip_address_allocation = "Dynamic"
+    subnet_id                     = data.azurerm_subnet.example_subnet.id
   }
-  
-
 }
 
 # Create a new Linux Virtual Machine (VM) - Node VM
@@ -63,23 +66,24 @@ resource "azurerm_linux_virtual_machine" "new_vm" {
   location            = data.azurerm_resource_group.example.location
   size                = "Standard_B1s"  # You can adjust the size as per your needs
   network_interface_ids = [azurerm_network_interface.new_vm_nic.id]
+
   os_disk {
     caching              = "ReadWrite"  # Disk caching mode
     storage_account_type = "Standard_LRS"  # Storage type for the OS disk
   }
 
-
   admin_username = "vijaylinux"
-  admin_password = "Viju_1234567"  
+  admin_password = var.Password  # Referencing the Password variable
+
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
     sku       = "20.04-LTS"
     version   = "latest"
-    
   }
 }
 
+# Output the private IP address of the new VM
 output "new_vm_private_ip" {
   value = azurerm_network_interface.new_vm_nic.private_ip_address
 }
