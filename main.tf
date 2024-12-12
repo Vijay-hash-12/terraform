@@ -1,8 +1,10 @@
+
+
 # Step 1: Declare the Password variable
 variable "Password" {
   description = "The password for the admin user of the Linux VM"
   type        = string
-  sensitive   = true
+  sensitive   = true  # This hides the password value in output or logs
 }
 
 # Configure the Azure provider
@@ -40,18 +42,7 @@ resource "azurerm_network_interface" "new_vm_nic" {
   location                  = data.azurerm_resource_group.example.location
   resource_group_name       = data.azurerm_resource_group.example.name
 
-  security_rule {
-    name                       = "allow-ssh"
-    priority                   = 1000
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"  # SSH port for Linux VM
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
+  # Network security group is referenced via an association with the NIC
   ip_configuration {
     name                          = "internal"
     private_ip_address_allocation = "Dynamic"
@@ -64,7 +55,7 @@ resource "azurerm_linux_virtual_machine" "new_vm" {
   name                = "new-vm"
   resource_group_name = data.azurerm_resource_group.example.name
   location            = data.azurerm_resource_group.example.location
-  size                = "Standard_B1s"  # You can adjust the size as per your needs
+  size                = "Standard_B1s"  # Adjust VM size as needed
   network_interface_ids = [azurerm_network_interface.new_vm_nic.id]
 
   os_disk {
@@ -73,7 +64,7 @@ resource "azurerm_linux_virtual_machine" "new_vm" {
   }
 
   admin_username = "vijaylinux"
-  admin_password = var.Password  # Referencing the Password variable
+  admin_password = var.Password  # Using the Password variable for VM admin password
 
   source_image_reference {
     publisher = "Canonical"
@@ -81,9 +72,33 @@ resource "azurerm_linux_virtual_machine" "new_vm" {
     sku       = "20.04-LTS"
     version   = "latest"
   }
+
+  # Ensure boot diagnostics is enabled for the VM
+  boot_diagnostics {
+    enabled              = true
+    storage_account_uri  = "https://diag${random_id.random_id.hex}.blob.core.windows.net"
+  }
 }
 
-# Output the private IP address of the new VM
+# Random ID for generating a unique storage account name
+resource "random_id" "random_id" {
+  keepers = {
+    resource_group = azurerm_resource_group.example.name
+  }
+  byte_length = 8
+}
+
+# Create a Storage Account for boot diagnostics
+resource "azurerm_storage_account" "my_storage_account" {
+  name                     = "diag${random_id.random_id.hex}"
+  location                 = data.azurerm_resource_group.example.location
+  resource_group_name      = data.azurerm_resource_group.example.name
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+# Output the private IP of the new VM
 output "new_vm_private_ip" {
   value = azurerm_network_interface.new_vm_nic.private_ip_address
 }
+
