@@ -37,9 +37,11 @@ resource "azurerm_network_interface" "new_vm_nic" {
     name                          = "internal"
     subnet_id                     = data.azurerm_subnet.example_subnet.id
     private_ip_address_allocation = "Dynamic"
-    
-    # Attach Network Security Group (NSG) to the NIC's IP configuration
-    network_security_group_id = data.azurerm_network_security_group.example_nsg.id
+  }
+
+  # Attach the Network Security Group (NSG) to the network interface
+  network_security_group {
+    id = data.azurerm_network_security_group.example_nsg.id
   }
 }
 
