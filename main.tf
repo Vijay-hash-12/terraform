@@ -37,9 +37,10 @@ resource "azurerm_network_interface" "new_vm_nic" {
     name                          = "internal"
     subnet_id                     = data.azurerm_subnet.example_subnet.id
     private_ip_address_allocation = "Dynamic"
+    
+    # Attach Network Security Group (NSG) to the NIC's IP configuration
+    network_security_group_id = data.azurerm_network_security_group.example_nsg.id
   }
-
-  network_security_group_id = data.azurerm_network_security_group.example_nsg.id
 }
 
 # Create a new Linux Virtual Machine (VM) - Node VM
@@ -52,7 +53,7 @@ resource "azurerm_linux_virtual_machine" "new_vm" {
   network_interface_ids = [azurerm_network_interface.new_vm_nic.id]
 
   admin_username = "vijaylinux"
-  admin_password = Password  # Use a variable for the password (recommended for sensitive data)
+  admin_password = var.vm_admin_password  # Use a variable for the password (recommended for sensitive data)
 
   source_image_reference {
     publisher = "Canonical"
