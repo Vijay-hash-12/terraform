@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Securely retrieve the secret from Jenkins credentials and bind it to an environment variable
-        VM_ADMIN_PASSWORD = credentials('Password')
+        VM_ADMIN_PASSWORD = credentials('Password')  // 'Password' is the Jenkins credentials ID
     }
 
     stages {
@@ -25,18 +25,18 @@ pipeline {
         
         stage('Terraform Plan') {
             steps {
-                // Set VM_ADMIN_PASSWORD as an environment variable without Groovy interpolation
+                // Set VM_ADMIN_PASSWORD as an environment variable and pass it securely to terraform
                 withEnv(["vm_admin_password=${VM_ADMIN_PASSWORD}"]) {
-                    bat 'terraform plan -var="vm_admin_password=%vm_admin_password%"'
+                    bat 'terraform plan -var="Password=%vm_admin_password%"'
                 }
             }
         }
         
         stage('Terraform Apply') {
             steps {
-                // Set VM_ADMIN_PASSWORD as an environment variable without Groovy interpolation
+                // Set VM_ADMIN_PASSWORD as an environment variable and pass it securely to terraform
                 withEnv(["vm_admin_password=${VM_ADMIN_PASSWORD}"]) {
-                    bat 'terraform apply -auto-approve -var="vm_admin_password=%vm_admin_password%"'
+                    bat 'terraform apply -auto-approve -var="Password=%vm_admin_password%"'
                 }
             }
         }
@@ -54,3 +54,4 @@ pipeline {
         }
     }
 }
+
