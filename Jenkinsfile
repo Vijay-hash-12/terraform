@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     // Use the correct -var syntax, and securely pass the password as a variable
-                    withCredentials([string(credentialsId: 'Password', variable: 'Passworda')]) {
+                    withCredentials([string(credentialsId: 'Password', variable: 'Password')]) {
                         bat "terraform plan -var=\"vm_admin_password=${Password}\""
                     }
                 }
