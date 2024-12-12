@@ -74,4 +74,3 @@ variable "Password" {
   type        = string
   sensitive   = true  # Marking this as sensitive to ensure it is not exposed in logs
 }
-
