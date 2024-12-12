@@ -40,9 +40,7 @@ resource "azurerm_network_interface" "new_vm_nic" {
   }
 
   # Attach the Network Security Group (NSG) to the network interface
-  network_security_group {
-    id = data.azurerm_network_security_group.example_nsg.id
-  }
+  network_security_group_id = data.azurerm_network_security_group.example_nsg.id
 }
 
 # Create a new Linux Virtual Machine (VM) - Node VM
