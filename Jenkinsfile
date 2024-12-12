@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Securely retrieve the secret from Jenkins credentials and bind it to an environment variable
-        VM_ADMIN_PASSWORD = credentials('xyz')
+        VM_ADMIN_PASSWORD = credentials('Password')
     }
 
     stages {
