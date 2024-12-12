@@ -16,7 +16,7 @@ data "azurerm_virtual_network" "example_vnet" {
 
 # Fetch the existing Subnet
 data "azurerm_subnet" "example_subnet" {
-  name                 = "your-subnet-name"  # Replace with the actual subnet name
+  name                 = "vijay-vnet2"  # Replace with the actual subnet name
   virtual_network_name = data.azurerm_virtual_network.example_vnet.name
   resource_group_name  = data.azurerm_resource_group.example.name
 }
@@ -53,7 +53,7 @@ resource "azurerm_linux_virtual_machine" "new_vm" {
   network_interface_ids = [azurerm_network_interface.new_vm_nic.id]
 
   admin_username = "vijaylinux"
-  admin_password = var.vm_admin_password  # Use a variable for the password (recommended for sensitive data)
+  admin_password = var.Password  # Use a variable for the password (recommended for sensitive data)
 
   source_image_reference {
     publisher = "Canonical"
@@ -69,8 +69,9 @@ output "new_vm_private_ip" {
 }
 
 # Define a variable for the VM admin password (this should be passed securely)
-variable "vm_admin_password" {
+variable "Password" {
   description = "The admin password for the Linux VM"
   type        = string
-  sensitive   = true
+  sensitive   = true  # Marking this as sensitive to ensure it is not exposed in logs
 }
+
