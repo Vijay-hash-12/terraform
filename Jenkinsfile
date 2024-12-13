@@ -1,22 +1,15 @@
 pipeline {
     agent any
 
-    environment {
-        
-        VM_ADMIN_PASSWORD = credentials('Password')  
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                
                 git 'https://github.com/Vijay-hash-12/terraform.git'
             }
         }
         
         stage('Terraform Init') {
             steps {
-              
                 script {
                     bat 'terraform init'
                 }
@@ -25,7 +18,6 @@ pipeline {
         
         stage('Terraform Plan') {
             steps {
-               
                 withCredentials([string(credentialsId: 'Password', variable: 'VM_ADMIN_PASSWORD')]) {
                     bat 'terraform plan -var="Password=%VM_ADMIN_PASSWORD%"'
                 }
@@ -34,7 +26,6 @@ pipeline {
         
         stage('Terraform Apply') {
             steps {
-                
                 withCredentials([string(credentialsId: 'Password', variable: 'VM_ADMIN_PASSWORD')]) {
                     bat 'terraform apply -auto-approve -var="Password=%VM_ADMIN_PASSWORD%"'
                 }
