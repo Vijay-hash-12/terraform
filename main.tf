@@ -12,7 +12,7 @@ provider "azurerm" {
 
 # 2. Create a Resource Group
 resource "azurerm_resource_group" "v1" {
-  name     = "DevOps_CaseStudy_vijay"
+  name     = "vijay1"
   location = "East US"  # Choose your preferred location
 }
 
