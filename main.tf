@@ -13,7 +13,7 @@ provider "azurerm" {
 # 2. Create a Resource Group
 resource "azurerm_resource_group" "v1" {
   name     = "DevOps_CaseStudy_vijay"
-  location = "South India"  # Choose your preferred location
+  location = "East US"  # Choose your preferred location
 }
 
 # 3. Create a Virtual Network (VNet)
