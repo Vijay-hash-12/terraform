@@ -1,11 +1,6 @@
 pipeline {
     agent any
-    environment {
-        ARM_CLIENT_ID = credentials('clientId')  // Retrieved from Jenkins Credentials store
-        ARM_CLIENT_SECRET = credentials('clientSecret')  // Retrieved from Jenkins Credentials store
-        ARM_SUBSCRIPTION_ID = credentials('subscriptionId')  // Corrected to use 'subscriptionId' credential
-        ARM_TENANT_ID = credentials('tenantId')  // Retrieved from Jenkins Credentials store
-    }
+    
 
     stages {
         stage('Checkout') {
