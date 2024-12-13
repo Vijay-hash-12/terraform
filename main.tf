@@ -37,7 +37,8 @@ resource "azurerm_public_ip" "my_terraform_public_ip" {
   name                = "myPublicIP"
   location            = azurerm_resource_group.v1.location
   resource_group_name = azurerm_resource_group.v1.name
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
+  sku                  = "Standard"
 }
 
 # 6. Create a Network Security Group (NSG) with an SSH rule (for Linux VM)
