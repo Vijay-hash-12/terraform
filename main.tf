@@ -1,108 +1,104 @@
-
-
-# Step 1: Declare the Password variable
-variable "Password" {
-  description = "The password for the admin user of the Linux VM"
-  type        = string
-  sensitive   = true  # This hides the password value in output or logs
-}
-
-# Configure the Azure provider
+# 1. Configure the Azure provider
 provider "azurerm" {
   features {}
 }
 
-# Fetch the existing Resource Group
-data "azurerm_resource_group" "example" {
-  name = "DevOps_CaseStudy"  # Replace with your existing resource group name
+# 2. Create a Resource Group
+resource "azurerm_resource_group" "v1" {
+  name     = "DevOps_CaseStudy"
   location = "South India"
 }
 
-# Fetch the existing Virtual Network
-data "azurerm_virtual_network" "example_vnet" {
-  name                = "vijay-vnet2"  # Replace with your existing virtual network name
-  resource_group_name = data.azurerm_resource_group.example.name
- location            = azurerm_resource_group.example.location
+# 3. Create a Virtual Network (VNet)
+resource "azurerm_virtual_network" "v1" {
+  name                = "vnet-terraform-example"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.v1.location
+  resource_group_name = azurerm_resource_group.v1.name
 }
 
-# Fetch the existing Subnet
-data "azurerm_subnet" "example_subnet" {
-  name                 = "vijay-vnet2"  # Replace with your existing subnet name
-  virtual_network_name = data.azurerm_virtual_network.example_vnet.name
-  resource_group_name  = data.azurerm_resource_group.example.name
-   location            = azurerm_resource_group.example.location
+# 4. Create a Subnet within the VNet
+resource "azurerm_subnet" "v1" {
+  name                 = "subnet-terraform-example"
+  resource_group_name  = azurerm_resource_group.v1.name
+  virtual_network_name = azurerm_virtual_network.v1.name
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
-# Fetch the existing Network Security Group (NSG)
-data "azurerm_network_security_group" "example_nsg" {
-  name                = "vijaynsg641"  # Replace with your existing NSG name
-  resource_group_name = data.azurerm_resource_group.example.name
-   location            = azurerm_resource_group.example.location
+# 5. Create a Network Security Group (NSG) with an SSH rule
+resource "azurerm_network_security_group" "v1" {
+  name                = "nsg-terraform-example"
+  location            = azurerm_resource_group.v1.location
+  resource_group_name = azurerm_resource_group.v1.name
+
+  security_rule {
+    name                       = "allow-ssh"
+    priority                   = 1000
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
-# Create the Network Interface for the new VM
-resource "azurerm_network_interface" "new_vm_nic" {
-  name                      = "new-vm-nic"
-  location                  = data.azurerm_resource_group.example.location
-  resource_group_name       = data.azurerm_resource_group.example.name
+# 6. Create a Public IP for the VM
+resource "azurerm_public_ip" "v1" {
+  name                = "public-ip-terraform-example"
+  location            = azurerm_resource_group.v1.location
+  resource_group_name = azurerm_resource_group.v1.name
+  allocation_method   = "Static"
+  sku                  = "Standard"
+}
 
-  # Network security group is referenced via an association with the NIC
+# 7. Create a Network Interface (NIC) and associate NSG
+resource "azurerm_network_interface" "v1" {
+  name                      = "nic-terraform-example"
+  location                  = azurerm_resource_group.v1.location
+  resource_group_name       = azurerm_resource_group.v1.name
   ip_configuration {
     name                          = "internal"
+    subnet_id                     = azurerm_subnet.v1.id
     private_ip_address_allocation = "Dynamic"
-    subnet_id                     = data.azurerm_subnet.example_subnet.id
+    public_ip_address_id          = azurerm_public_ip.v1.id
   }
+
+  depends_on = [azurerm_subnet.v1]
 }
 
-# Create a new Linux Virtual Machine (VM) - Node VM
-resource "azurerm_linux_virtual_machine" "new_vm" {
-  name                = "new-vm"
-  resource_group_name = data.azurerm_resource_group.example.name
-  location            = data.azurerm_resource_group.example.location
-  size                = "Standard_B1s"  # Adjust VM size as needed
-  network_interface_ids = [azurerm_network_interface.new_vm_nic.id]
+# 8. Create a Linux Virtual Machine with password authentication
+resource "azurerm_linux_virtual_machine" "v1" {
+  name                = "Nodev"
+  resource_group_name = azurerm_resource_group.v1.name
+  location            = azurerm_resource_group.v1.location
+  size                = "Standard_B1s"
+  admin_username      = "vijaylinux"
+  disable_password_authentication = false
+  admin_password = "Viju_1234"
+
+  network_interface_ids = [
+    azurerm_network_interface.v1.id,
+  ]
 
   os_disk {
-    caching              = "ReadWrite"  # Disk caching mode
-    storage_account_type = "Standard_LRS"  # Storage type for the OS disk
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
   }
-
-  admin_username = "vijaylinux"
-  admin_password = var.Password  # Using the Password variable for VM admin password
 
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "20.04-LTS"
+    sku       = "18.04-LTS"
     version   = "latest"
   }
 
-  # Ensure boot diagnostics is enabled for the VM
-  boot_diagnostics {
-    enabled              = true
-    storage_account_uri  = "https://diag${random_id.random_id.hex}.blob.core.windows.net"
+  tags = {
+    environment = "development"
   }
 }
 
-# Random ID for generating a unique storage account name
-resource "random_id" "random_id" {
-  keepers = {
-    resource_group = azurerm_resource_group.example.name
-  }
-  byte_length = 8
-}
-
-# Create a Storage Account for boot diagnostics
-resource "azurerm_storage_account" "my_storage_account" {
-  name                     = "diag${random_id.random_id.hex}"
-  location                 = data.azurerm_resource_group.example.location
-  resource_group_name      = data.azurerm_resource_group.example.name
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
-
-# Output the private IP of the new VM
-output "new_vm_private_ip" {
-  value = azurerm_network_interface.new_vm_nic.private_ip_address
-}
-
+# 9. Output the public IP of the VM
+output "public_ip" {
+  value = azurerm_public_ip.v1.ip_address
