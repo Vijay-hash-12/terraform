@@ -3,6 +3,7 @@ provider "azurerm" {
   features {}
 }
 
+
 # 2. Create a Resource Group
 resource "azurerm_resource_group" "v1" {
   name     = "DevOps_CaseStudy_vijay"
@@ -75,6 +76,9 @@ resource "azurerm_network_interface_security_group_association" "v1" {
 resource "tls_private_key" "example" {
   algorithm = "RSA"
   rsa_bits  = 2048
+}
+resource "random_id" "random_id" {
+  byte_length = 8
 }
 
 # Create a storage account for boot diagnostics
