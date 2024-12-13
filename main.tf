@@ -1,3 +1,12 @@
+# Step 1: Declare the Password variable
+variable "Password" {
+  description = "The password for the admin user of the Linux VM"
+  type        = string
+  sensitive   = true  # This hides the password value in output or logs
+}
+
+
+
 # 1. Configure the Azure provider
 provider "azurerm" {
   features {}
