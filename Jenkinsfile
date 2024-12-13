@@ -7,8 +7,6 @@ pipeline {
         AZURE_TENANT_ID       = credentials('tenantId')
     }
 
-    
-
     stages {
         stage('Checkout') {
             steps {
@@ -27,7 +25,14 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 withCredentials([string(credentialsId: 'Password', variable: 'VM_ADMIN_PASSWORD')]) {
-                    bat 'terraform plan -var="Password=%VM_ADMIN_PASSWORD%"'
+                    bat """
+                        terraform plan \
+                            -var="client_id=${AZURE_CLIENT_ID}" \
+                            -var="client_secret=${AZURE_CLIENT_SECRET}" \
+                            -var="tenant_id=${AZURE_TENANT_ID}" \
+                            -var="subscription_id=${AZURE_SUBSCRIPTION_ID}" \
+                            -var="Password=${VM_ADMIN_PASSWORD}"
+                    """
                 }
             }
         }
@@ -35,12 +40,19 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 withCredentials([string(credentialsId: 'Password', variable: 'VM_ADMIN_PASSWORD')]) {
-                    bat 'terraform apply -auto-approve -var="Password=%VM_ADMIN_PASSWORD%"'
+                    bat """
+                        terraform apply -auto-approve \
+                            -var="client_id=${AZURE_CLIENT_ID}" \
+                            -var="client_secret=${AZURE_CLIENT_SECRET}" \
+                            -var="tenant_id=${AZURE_TENANT_ID}" \
+                            -var="subscription_id=${AZURE_SUBSCRIPTION_ID}" \
+                            -var="Password=${VM_ADMIN_PASSWORD}"
+                    """
                 }
             }
         }
     }
-    
+
     post {
         always {
             echo 'Cleaning up...'
