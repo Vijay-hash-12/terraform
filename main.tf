@@ -15,12 +15,14 @@ provider "azurerm" {
 # Fetch the existing Resource Group
 data "azurerm_resource_group" "example" {
   name = "DevOps_CaseStudy"  # Replace with your existing resource group name
+  location = "South India"
 }
 
 # Fetch the existing Virtual Network
 data "azurerm_virtual_network" "example_vnet" {
   name                = "vijay-vnet2"  # Replace with your existing virtual network name
   resource_group_name = data.azurerm_resource_group.example.name
+ location            = azurerm_resource_group.example.location
 }
 
 # Fetch the existing Subnet
@@ -28,12 +30,14 @@ data "azurerm_subnet" "example_subnet" {
   name                 = "vijay-vnet2"  # Replace with your existing subnet name
   virtual_network_name = data.azurerm_virtual_network.example_vnet.name
   resource_group_name  = data.azurerm_resource_group.example.name
+   location            = azurerm_resource_group.example.location
 }
 
 # Fetch the existing Network Security Group (NSG)
 data "azurerm_network_security_group" "example_nsg" {
   name                = "vijaynsg641"  # Replace with your existing NSG name
   resource_group_name = data.azurerm_resource_group.example.name
+   location            = azurerm_resource_group.example.location
 }
 
 # Create the Network Interface for the new VM
