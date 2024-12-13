@@ -71,17 +71,13 @@ resource "azurerm_network_interface_security_group_association" "v1" {
   network_security_group_id = azurerm_network_security_group.v1.id
 }
 
-# Generate random text for a unique storage account name
-resource "random_id" "random_id" {
-  keepers = {
-    # Generate a new ID only when a new resource group is defined
-    resource_group = azurerm_resource_group.v1.name
-  }
-
-  byte_length = 8
+# Generate SSH key pair dynamically using the TLS provider
+resource "tls_private_key" "example" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
 }
 
-# Create storage account for boot diagnostics
+# Create a storage account for boot diagnostics
 resource "azurerm_storage_account" "my_storage_account" {
   name                     = "diag${random_id.random_id.hex}"
   location                 = azurerm_resource_group.v1.location
@@ -90,7 +86,7 @@ resource "azurerm_storage_account" "my_storage_account" {
   account_replication_type = "LRS"
 }
 
-# 9. Create a Linux Virtual Machine with SSH key authentication
+# 9. Create a Linux Virtual Machine with dynamically generated SSH key
 resource "azurerm_linux_virtual_machine" "example" {
   name                = "NodeV"  # VM name
   resource_group_name = azurerm_resource_group.v1.name
@@ -112,18 +108,17 @@ resource "azurerm_linux_virtual_machine" "example" {
   }
 
   computer_name  = "Vijaylinux"
-  admin_username = "Vijay"  # Updated: Hardcoded the admin username as "Vijay"
+  admin_username = "Vijay"  # Admin username for the VM
   
+  # Use dynamically generated SSH key
   admin_ssh_key {
     username   = "Vijay"
-    public_key = azapi_resource_action.ssh_public_key_gen.output.publicKey
+    public_key = tls_private_key.example.public_key_openssh
   }
 
   boot_diagnostics {
     storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
   }
-
-  depends_on = [azapi_resource_action.ssh_public_key_gen]
 }
 
 # Output the public IP of the VM
