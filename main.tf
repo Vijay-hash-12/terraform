@@ -86,7 +86,7 @@ resource "azurerm_linux_virtual_machine" "v1" {
   size                = "Standard_B1s"
   admin_username      = "vijaylinux"
   disable_password_authentication = false
-  admin_password = "Viju_1234"
+  admin_password = var.Password
 
   network_interface_ids = [
     azurerm_network_interface.v1.id,
