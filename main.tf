@@ -21,6 +21,7 @@ resource "azurerm_virtual_network" "v1" {
 resource "azurerm_subnet" "v1" {
   name                 = "subnet-terraform-example"
   resource_group_name  = azurerm_resource_group.v1.name
+
   virtual_network_name = azurerm_virtual_network.v1.name
   address_prefixes     = ["10.0.1.0/24"]
 }
@@ -102,3 +103,4 @@ resource "azurerm_linux_virtual_machine" "v1" {
 # 9. Output the public IP of the VM
 output "public_ip" {
   value = azurerm_public_ip.v1.ip_address
+}
