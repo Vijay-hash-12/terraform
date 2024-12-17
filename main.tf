@@ -2,7 +2,7 @@
 provider "azurerm" {
   features {}
 
-  # Optional: You can add the Azure credentials directly here or use environment variables
+  #  add the Azure credentials directly here or use environment variables
   subscription_id = var.subscription_id
   client_id       = var.client_id
   client_secret   = var.client_secret
